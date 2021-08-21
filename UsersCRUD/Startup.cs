@@ -9,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Text;
+using UsersCrud.CrossCutting.Helpers;
 using UsersCrud.Domain;
 using UsersCrud.Domain.ServicesInterfaces;
 using UsersCrud.Infra.Data.Contexts;
@@ -29,16 +30,6 @@ namespace UsersCRUD
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["jwt:key"])),
-                    ClockSkew = TimeSpan.Zero
-                });
 
             services.AddDbContext<DataContext>(options => options.UseNpgsql(Configuration.GetConnectionString("PostgresConnectionString")));
             services.AddSwaggerGen(c =>
@@ -47,6 +38,8 @@ namespace UsersCRUD
             });
 
             services.AddAutoMapper(typeof(MapData));
+
+            services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
 
             // Utilidades do serviço.
             services.AddScoped<IUserService, UserService>();
@@ -62,11 +55,16 @@ namespace UsersCRUD
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "UsersCRUD v1"));
             }
 
-            app.UseHttpsRedirection();
-
             app.UseRouting();
 
-            app.UseAuthorization();
+            // politica global do cors
+            app.UseCors(x => x
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader());
+
+            //autenticação jwt customizada
+            app.UseMiddleware<JwtMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {

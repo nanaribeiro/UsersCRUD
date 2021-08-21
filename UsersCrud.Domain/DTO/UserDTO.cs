@@ -1,6 +1,6 @@
 ﻿namespace UsersCrud.Domain.DTO
 {
-    public abstract class UserDTO
+    public class UserDTO
     {
         /// <summary>
         /// Nome de usuário
