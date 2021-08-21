@@ -61,9 +61,24 @@ namespace UsersCrud.Services.Services
             userEntity.PasswordHash = userDto.Password.Encode();
             _userRepository.Insert(userEntity);
             _userRepository.SaveChanges();
-            var token = GenerateJwtToken(userEntity);
+            var token = GenerateJwtToken(userEntity.Id.ToString());
 
             return Task.FromResult(new UserResponseDTO() {Id =  userEntity.Id, Token = token, UserName = userEntity.UserName });
+        }
+
+        public Task<UserDTO> UpdateUser(Guid userId, UserDTO userDto)
+        {
+            ValidateUserData(userDto);
+            VerifyExistingUserForUpdate(userId, userDto);
+            var user = _userRepository.Select(userId);
+            user.PasswordHash = userDto.Password.Encode();
+            user.PhoneNumber = userDto.PhoneNumber;
+            user.Email = userDto.Email;
+            user.UserName = userDto.UserName;
+            _userRepository.Update(user);
+            _userRepository.SaveChanges();
+
+            return Task.FromResult(userDto);
         }
 
         private void VerifyExistingUser(UserDTO userDto)
@@ -77,12 +92,23 @@ namespace UsersCrud.Services.Services
                 throw new Exception("E-mail em uso. Por favor logue com seu usuário ou digite outro e-mail");
         }
 
+        private void VerifyExistingUserForUpdate(Guid userId, UserDTO userDto)
+        {
+            var existingUser = _userRepository.SelectWhere(x => x.UserName == userDto.UserName && x.Id != userId);
+            if (existingUser != null)
+                throw new Exception("Nome de usuário existente. Por favor digite outro nome de usuário");
+
+            existingUser = _userRepository.SelectWhere(x => x.Email == userDto.Email && x.Id != userId);
+            if (existingUser != null)
+                throw new Exception("E-mail em uso. Por favor logue com seu usuário ou digite outro e-mail");
+        }
+
         /// <summary>
         /// Método para obter um usuário pelo seu Id
         /// </summary>
         /// <param name="id">Identificador do usuário</param>
         /// <returns></returns>
-        public UserEntity GetById(int id)
+        public UserEntity GetById(Guid id)
         {
             return _userRepository.Select(id);
         }
@@ -130,14 +156,19 @@ namespace UsersCrud.Services.Services
                 throw new Exception("O número de telefone deve ser um telefone válido");
         }
 
-        private string GenerateJwtToken(UserEntity user)
+        /// <summary>
+        /// Método de geração de token utilizando jwt
+        /// </summary>
+        /// <param name="userId">Id de identificação do usuário</param>
+        /// <returns></returns>
+        private string GenerateJwtToken(string userId)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             //Pegar o segredo do appsettings
             var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new[] { new Claim("id", user.Id.ToString()) }),
+                Subject = new ClaimsIdentity(new[] { new Claim("id", userId) }),
                 Expires = DateTime.UtcNow.AddDays(7),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };

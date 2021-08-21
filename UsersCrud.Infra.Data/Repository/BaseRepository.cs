@@ -26,7 +26,7 @@ namespace UsersCrud.Infra.Data.Repository
             _postgresContext.Entry(obj).State = Microsoft.EntityFrameworkCore.EntityState.Modified;            
         }
 
-        public void Delete(int id)
+        public void Delete(Guid id)
         {
             _postgresContext.Set<TEntity>().Remove(Select(id));
         }
@@ -34,7 +34,7 @@ namespace UsersCrud.Infra.Data.Repository
         public IList<TEntity> Select() =>
             _postgresContext.Set<TEntity>().ToList();
 
-        public TEntity Select(int id) =>
+        public TEntity Select(Guid id) =>
             _postgresContext.Set<TEntity>().Find(id);
 
         public TEntity SelectWhere(Func<TEntity, bool> predicate) =>

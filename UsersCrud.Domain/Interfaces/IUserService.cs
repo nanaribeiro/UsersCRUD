@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using UsersCrud.Domain.DTO;
 using UsersCrud.Domain.Entities;
 
@@ -18,6 +19,14 @@ namespace UsersCrud.Domain.ServicesInterfaces
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        UserEntity GetById(int id);
+        UserEntity GetById(Guid id);
+
+        /// <summary>
+        /// Método para atualizar um usuário
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="userDto"></param>
+        /// <returns></returns>
+        Task<UserDTO> UpdateUser(Guid userId, UserDTO userDto);
     }
 }

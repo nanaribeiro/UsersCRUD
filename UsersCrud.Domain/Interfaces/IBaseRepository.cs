@@ -10,11 +10,11 @@ namespace UsersCrud.Domain.Interfaces
 
         void Update(TEntity obj);
 
-        void Delete(int id);
+        void Delete(Guid id);
 
         IList<TEntity> Select();
 
-        TEntity Select(int id);
+        TEntity Select(Guid id);
 
         void SaveChanges();
 
