@@ -56,6 +56,7 @@ namespace UsersCrud.Services.Services
         public Task<UserResponseDTO> AddNewUser(UserDTO userDto)
         {
             ValidateUserData(userDto);
+            VerifyExistingUser(userDto);
             var userEntity = this._mapper.Map<UserEntity>(userDto);
             userEntity.PasswordHash = userDto.Password.Encode();
             _userRepository.Insert(userEntity);
@@ -63,6 +64,17 @@ namespace UsersCrud.Services.Services
             var token = GenerateJwtToken(userEntity);
 
             return Task.FromResult(new UserResponseDTO() {Id =  userEntity.Id, Token = token, UserName = userEntity.UserName });
+        }
+
+        private void VerifyExistingUser(UserDTO userDto)
+        {
+            var existingUser = _userRepository.SelectWhere(x => x.UserName == userDto.UserName);
+            if (existingUser != null)
+                throw new Exception("Nome de usuário existente. Por favor digite outro nome de usuário");
+            
+            existingUser = _userRepository.SelectWhere(x => x.Email == userDto.Email);
+            if (existingUser != null)
+                throw new Exception("E-mail em uso. Por favor logue com seu usuário ou digite outro e-mail");
         }
 
         /// <summary>
@@ -102,6 +114,20 @@ namespace UsersCrud.Services.Services
 
             if (matchedUserName.Count == 0)
                 throw new Exception("O nome de usuário deve ter entre 5 a 50 caracteres alfanúmericos");
+
+            var emailPattern = @"^(([^<>()[\]\\.,;:\s@\""]+(\.[^<> ()[\]\\.,;:\s@\""]+)*)|(\"".+\""))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$";
+            rg = new Regex(emailPattern);
+            MatchCollection matchedEmail = rg.Matches(userDto.Email);
+
+            if (matchedEmail.Count == 0)
+                throw new Exception("O e-mail deve ser um e-mail válido");
+
+            var phoneNumberPattern = @"(\(?\d{2}\)?\s?)?(\d{4,5}\-?\d{4})";
+            rg = new Regex(phoneNumberPattern);
+            MatchCollection matchedPhoneNumber = rg.Matches(userDto.PhoneNumber);
+
+            if (matchedPhoneNumber.Count == 0)
+                throw new Exception("O número de telefone deve ser um telefone válido");
         }
 
         private string GenerateJwtToken(UserEntity user)

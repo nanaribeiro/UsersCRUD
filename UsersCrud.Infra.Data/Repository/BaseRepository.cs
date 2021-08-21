@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UsersCrud.Domain.Entities;
 using UsersCrud.Domain.Interfaces;
@@ -35,6 +36,9 @@ namespace UsersCrud.Infra.Data.Repository
 
         public TEntity Select(int id) =>
             _postgresContext.Set<TEntity>().Find(id);
+
+        public TEntity SelectWhere(Func<TEntity, bool> predicate) =>
+            _postgresContext.Set<TEntity>().Where(predicate).FirstOrDefault();
 
         public void SaveChanges()
         {

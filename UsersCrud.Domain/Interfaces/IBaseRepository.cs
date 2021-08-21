@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UsersCrud.Domain.Entities;
 
 namespace UsersCrud.Domain.Interfaces
@@ -16,5 +17,7 @@ namespace UsersCrud.Domain.Interfaces
         TEntity Select(int id);
 
         void SaveChanges();
+
+        TEntity SelectWhere(Func<TEntity, bool> predicate);
     }
 }
