@@ -65,6 +65,12 @@ namespace UsersCrud.Services.Services
             return Task.FromResult(new UserResponseDTO { Email = userEntity.Email, Id = userEntity.Id, PhoneNumber = userEntity.PhoneNumber, UserName = userEntity.UserName});
         }
 
+        /// <summary>
+        /// Método para atualizar os dados básicos do usuário
+        /// </summary>
+        /// <param name="userId">Id único do usuário</param>
+        /// <param name="userDto">Dados a serem modificados</param>
+        /// <returns></returns>
         public Task<UserResponseDTO> UpdateUserData(Guid userId, UserUpdateDTO userDto)
         {
             var validateUser = new UserDTO() { Email = userDto.Email, Password = "senhavalida", PhoneNumber = userDto.PhoneNumber, UserName = userDto.UserName };
@@ -87,6 +93,11 @@ namespace UsersCrud.Services.Services
             return Task.FromResult(new UserResponseDTO { Email = user.Email, Id = user.Id, PhoneNumber = user.PhoneNumber, UserName = user.UserName });
         }
 
+        /// <summary>
+        /// Método para trocar a senha do usuário
+        /// </summary>
+        /// <param name="changePasswordDTO">DTO com os dados necessários para a mudança de senha</param>
+        /// <returns></returns>
         public Task<UserResponseDTO> ChangePassword(ChangePasswordDTO changePasswordDTO)
         {
             ValidatePassword(changePasswordDTO.NewPassword);
@@ -103,6 +114,10 @@ namespace UsersCrud.Services.Services
             return Task.FromResult(new UserResponseDTO { Email = user.Email, Id = user.Id, PhoneNumber = user.PhoneNumber, UserName = user.UserName });
         }
 
+        /// <summary>
+        /// Método para validar a senha do usuário
+        /// </summary>
+        /// <param name="password">Senha a ser validada</param>
         private static void ValidatePassword(string password)
         {
             if (string.IsNullOrEmpty(password))
@@ -112,6 +127,11 @@ namespace UsersCrud.Services.Services
                 throw new Exception("A senha deve ter entre 6 a 20 caracteres");
         }
 
+        /// <summary>
+        /// Método para remover um usuário
+        /// </summary>
+        /// <param name="userId">Is de identificação do usuárioa  ser removido</param>
+        /// <returns></returns>
         public Task DeleteUser(Guid userId)
         {
             ValidateAdminUserDelete(userId);
@@ -122,6 +142,10 @@ namespace UsersCrud.Services.Services
             return Task.FromResult(userId);
         }
 
+        /// <summary>
+        /// Método para obter a lista de todos os usuários
+        /// </summary>
+        /// <returns>Lista de todos os usuários cadastrados no sistema</returns>
         public Task<List<UserResponseDTO>> GetAllUsers()
         {
             var users = (List<UserEntity>)_userRepository.Select();
@@ -130,6 +154,11 @@ namespace UsersCrud.Services.Services
             return Task.FromResult(usersConversion);
         }
 
+        /// <summary>
+        /// Método para autenticar/logar no sistema
+        /// </summary>
+        /// <param name="userDto">Dados necessários para poder autenticar</param>
+        /// <returns>Dados do usuário e token de autenticação</returns>
         public Task<UserAuthenticateResponseDTO> Authenticate(UserAuthenticationDTO userDto)
         {
             if (string.IsNullOrEmpty(userDto.UserName))
@@ -163,6 +192,10 @@ namespace UsersCrud.Services.Services
                 throw new Exception("Não é possível mudar o nome do usuário padrão do sistema");
         }
 
+        /// <summary>
+        /// Método para validar se o usuário a ser excluído é o padrão
+        /// </summary>
+        /// <param name="userId">Id do usuário</param>
         private void ValidateAdminUserDelete(Guid userId)
         {
             var existingUser = _userRepository.SelectWhere(x => x.Id == userId);
@@ -173,6 +206,10 @@ namespace UsersCrud.Services.Services
                 throw new Exception("Não é permitido excluir o usuário padrão do sistema");
         }
 
+        /// <summary>
+        /// Método para verificar se o nome de usuário ou e-mail já existem
+        /// </summary>
+        /// <param name="userDto">Dados a serem verificados</param>
         private void VerifyExistingUser(UserDTO userDto)
         {
             var existingUser = _userRepository.SelectWhere(x => x.UserName == userDto.UserName);
@@ -184,6 +221,11 @@ namespace UsersCrud.Services.Services
                 throw new Exception("E-mail em uso. Por favor logue com seu usuário ou digite outro e-mail");
         }
 
+        /// <summary>
+        /// Método para verificar se o nome de usuário ou e-mail a serem atualizados já existem
+        /// </summary>
+        /// <param name="userId">Id do usuário</param>
+        /// <param name="userDto">Dados a serem verificados</param>
         private void VerifyExistingUserForUpdate(Guid userId, UserDTO userDto)
         {
             var existingUser = _userRepository.SelectWhere(x => x.UserName == userDto.UserName && x.Id != userId);

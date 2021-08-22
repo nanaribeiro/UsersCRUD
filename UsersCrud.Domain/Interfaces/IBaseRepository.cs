@@ -4,6 +4,10 @@ using UsersCrud.Domain.Entities;
 
 namespace UsersCrud.Domain.Interfaces
 {
+    /// <summary>
+    /// Interface base para todos os repositórios
+    /// </summary>
+    /// <typeparam name="TEntity"></typeparam>
     public interface IBaseRepository<TEntity> where TEntity : BaseEntity
     {
         void Insert(TEntity obj);

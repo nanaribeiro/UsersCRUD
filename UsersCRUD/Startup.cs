@@ -125,8 +125,6 @@ namespace UsersCRUD
             app.UseAuthentication();
             app.UseAuthorization();
 
-            //autenticação jwt customizada
-            //app.UseMiddleware<JwtMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {

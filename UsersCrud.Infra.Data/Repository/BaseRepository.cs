@@ -7,6 +7,10 @@ using UsersCrud.Infra.Data.Contexts;
 
 namespace UsersCrud.Infra.Data.Repository
 {
+    /// <summary>
+    /// Classe base para todos os repositórios contendo os métodos necessários
+    /// </summary>
+    /// <typeparam name="TEntity"></typeparam>
     public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : BaseEntity
     {
         protected readonly DataContext _postgresContext;
