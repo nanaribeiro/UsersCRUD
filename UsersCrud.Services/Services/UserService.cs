@@ -53,7 +53,7 @@ namespace UsersCrud.Services.Services
         /// </summary>
         /// <param name="userDto">Dados do novo usuário</param>
         /// <returns></returns>
-        public Task<UserEntity> AddNewUser(UserDTO userDto)
+        public Task<UserResponseDTO> AddNewUser(UserDTO userDto)
         {
             ValidateUserData(userDto);
             VerifyExistingUser(userDto);
@@ -62,10 +62,10 @@ namespace UsersCrud.Services.Services
             _userRepository.Insert(userEntity);
             _userRepository.SaveChanges();
 
-            return Task.FromResult(userEntity);
+            return Task.FromResult(new UserResponseDTO { Email = userEntity.Email, Id = userEntity.Id, PhoneNumber = userEntity.PhoneNumber, UserName = userEntity.UserName});
         }
 
-        public Task<UserDTO> UpdateUser(Guid userId, UserDTO userDto)
+        public Task<UserResponseDTO> UpdateUser(Guid userId, UserDTO userDto)
         {
             ValidateUserData(userDto);
             VerifyExistingUserForUpdate(userId, userDto);
@@ -84,7 +84,7 @@ namespace UsersCrud.Services.Services
             _userRepository.Update(user);
             _userRepository.SaveChanges();
 
-            return Task.FromResult(userDto);
+            return Task.FromResult(new UserResponseDTO { Email = user.Email, Id = user.Id, PhoneNumber = user.PhoneNumber, UserName = user.UserName });
         }
 
         public Task DeleteUser(Guid userId)
@@ -97,12 +97,15 @@ namespace UsersCrud.Services.Services
             return Task.FromResult(userId);
         }
 
-        public Task<IEnumerable<UserEntity>> GetAllUsers()
+        public Task<List<UserResponseDTO>> GetAllUsers()
         {
-            return Task.FromResult(_userRepository.Select());
+            var users = (List<UserEntity>)_userRepository.Select();
+            var usersConversion = users.ConvertAll(x => this._mapper.Map<UserResponseDTO>(x));
+            
+            return Task.FromResult(usersConversion);
         }
 
-        public Task<UserResponseDTO> Authenticate(UserDTO userDto)
+        public Task<UserAuthenticateResponseDTO> Authenticate(UserAuthenticationDTO userDto)
         {
             if (string.IsNullOrEmpty(userDto.UserName))
                 throw new Exception("O nome do usuário precisa ser informado");
@@ -120,7 +123,7 @@ namespace UsersCrud.Services.Services
 
             var token = GenerateJwtToken(userEntity.Id.ToString());
 
-            return Task.FromResult(new UserResponseDTO() { Id = userEntity.Id, Token = token, UserName = userEntity.UserName });
+            return Task.FromResult(new UserAuthenticateResponseDTO() { Id = userEntity.Id, Token = token, UserName = userEntity.UserName });
         }
 
         /// <summary>

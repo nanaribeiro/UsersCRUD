@@ -21,34 +21,48 @@ namespace UsersCRUD.Controllers
         [HttpPost("create")]
         public IActionResult Create([FromBody] UserDTO user)
         {
-            return Ok(_userService.AddNewUser(user));
+            return Execute(() => _userService.AddNewUser(user));
         }
 
         [HttpPost("authenticate")]
-        public IActionResult Authenticate([FromBody] UserDTO user)
+        public IActionResult Authenticate([FromBody] UserAuthenticationDTO user)
         {
-            return Ok(_userService.Authenticate(user));
+            return Execute(() =>_userService.Authenticate(user));
         }
 
         [Authorize]
         [HttpPut("update/{userId}")]
         public IActionResult Update([FromRoute] Guid userId, [FromBody] UserDTO user)
         {
-            return Ok(_userService.UpdateUser(userId, user));
+            return Execute(() => _userService.UpdateUser(userId, user));
         }
 
         [Authorize]
         [HttpDelete("remove/{userId}")]
         public IActionResult Remove([FromRoute] Guid userId)
         {
-            return Ok(_userService.DeleteUser(userId));
+            return Execute(() => _userService.DeleteUser(userId));
         }
 
         [Authorize]
         [HttpGet]
         public IActionResult GetAllUsers()
         {
-            return Ok(_userService.GetAllUsers());
+            return Execute(() => _userService.GetAllUsers());
+        }
+
+        private IActionResult Execute(Func<object> func)
+        {
+            try
+            {
+                var result = func();
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
         }
     }
 }

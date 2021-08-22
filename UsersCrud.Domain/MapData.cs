@@ -16,6 +16,8 @@ namespace UsersCrud.Domain
         private void User()
         {
             this.CreateMap<UserDTO, UserEntity>();
+            this.CreateMap<UserEntity, UserResponseDTO>();
+            this.CreateMap<UserAuthenticationDTO, UserEntity>();
         }
     }
 }

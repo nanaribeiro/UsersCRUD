@@ -13,7 +13,7 @@ namespace UsersCrud.Domain.ServicesInterfaces
         /// </summary>
         /// <param name="userDto"></param>
         /// <returns></returns>
-        Task<UserEntity> AddNewUser(UserDTO userDto);
+        Task<UserResponseDTO> AddNewUser(UserDTO userDto);
 
         /// <summary>
         /// Método para atualizar um usuário
@@ -21,7 +21,7 @@ namespace UsersCrud.Domain.ServicesInterfaces
         /// <param name="userId"></param>
         /// <param name="userDto"></param>
         /// <returns></returns>
-        Task<UserDTO> UpdateUser(Guid userId, UserDTO userDto);
+        Task<UserResponseDTO> UpdateUser(Guid userId, UserDTO userDto);
 
         /// <summary>
         /// Método para deletar usuário pelo Id informado
@@ -35,12 +35,12 @@ namespace UsersCrud.Domain.ServicesInterfaces
         /// </summary>
         /// <param name="userDto">Dados do usuário para autenticar</param>
         /// <returns></returns>
-        Task<UserResponseDTO> Authenticate(UserDTO userDto);
+        Task<UserAuthenticateResponseDTO> Authenticate(UserAuthenticationDTO userDto);
 
         /// <summary>
         /// Método para listar todos os usuários cadastrados
         /// </summary>
         /// <returns>Lista com todos os usuários</returns>
-        Task<IEnumerable<UserEntity>> GetAllUsers();
+        Task<List<UserResponseDTO>> GetAllUsers();
     }
 }

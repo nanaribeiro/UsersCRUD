@@ -2,7 +2,6 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using UsersCrud.CrossCutting.Helpers;
 using UsersCrud.Domain;
@@ -167,7 +166,7 @@ namespace UsersCrud.Services.Test
             IOptions<AppSettings> appSettingsOptions = Options.Create(settings);
             var userService = new UserService(repository, mapper, appSettingsOptions);
 
-            var user = new UserDTO() { Email = "alana@a.com", Password = "123456", PhoneNumber = "(62)99122-9290", UserName = "muitod4" };
+            var user = new UserDTO() { Email = "okie@a.com", Password = "654321", PhoneNumber = "(62)94568-9290", UserName = "qualquer" };
 
             var result = userService.AddNewUser(user).Result;
 
@@ -220,7 +219,7 @@ namespace UsersCrud.Services.Test
             IOptions<AppSettings> appSettingsOptions = Options.Create(settings);
             var userService = new UserService(repository, mapper, appSettingsOptions);
 
-            var userDto = new UserDTO() { Email = "alana@a.com", Password = "123456", PhoneNumber = "(62)99122-9290", UserName = "muitod4" };
+            var userDto = new UserDTO() { Email = "okiaa@a.com", Password = "123456", PhoneNumber = "(62)95412-9290", UserName = "troelk" };
 
             var user = userService.AddNewUser(userDto).Result;
 
@@ -246,7 +245,7 @@ namespace UsersCrud.Services.Test
             IOptions<AppSettings> appSettingsOptions = Options.Create(settings);
             var userService = new UserService(repository, mapper, appSettingsOptions);
 
-            var result = (List<UserEntity>)userService.GetAllUsers().Result;
+            var result = userService.GetAllUsers().Result;
             Assert.True(true);
         }
 
@@ -268,7 +267,7 @@ namespace UsersCrud.Services.Test
             IOptions<AppSettings> appSettingsOptions = Options.Create(settings);
             var userService = new UserService(repository, mapper, appSettingsOptions);
 
-            var user = new UserDTO() { Email = "alana@a.com", Password = "12345", PhoneNumber = "(62)99122-9290", UserName = "muitod4" };
+            var user = new UserAuthenticationDTO() { Password = "12345",  UserName = "muitod4" };
 
             var exception = Assert.ThrowsAsync<Exception>(() => userService.Authenticate(user));
             Assert.Equal("Usuário ou senha inválido", exception.Result.Message);            

@@ -7,7 +7,7 @@ namespace UsersCrud.Domain.Entities
     public abstract class BaseEntity
     {
         /// <summary>
-        /// Índice único da entidade.
+        /// Id único da entidade.
         /// </summary>
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
