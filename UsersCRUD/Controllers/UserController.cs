@@ -30,11 +30,17 @@ namespace UsersCRUD.Controllers
             return Execute(() =>_userService.Authenticate(user));
         }
 
+        [HttpPut("changepassword")]
+        public IActionResult ChangePassword([FromBody] ChangePasswordDTO user)
+        {
+            return Execute(() => _userService.ChangePassword(user));
+        }
+
         [Authorize]
         [HttpPut("update/{userId}")]
-        public IActionResult Update([FromRoute] Guid userId, [FromBody] UserDTO user)
+        public IActionResult Update([FromRoute] Guid userId, [FromBody] UserUpdateDTO user)
         {
-            return Execute(() => _userService.UpdateUser(userId, user));
+            return Execute(() => _userService.UpdateUserData(userId, user));
         }
 
         [Authorize]

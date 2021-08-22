@@ -21,7 +21,7 @@ namespace UsersCrud.Domain.ServicesInterfaces
         /// <param name="userId"></param>
         /// <param name="userDto"></param>
         /// <returns></returns>
-        Task<UserResponseDTO> UpdateUser(Guid userId, UserDTO userDto);
+        Task<UserResponseDTO> UpdateUserData(Guid userId, UserUpdateDTO userDto);
 
         /// <summary>
         /// Método para deletar usuário pelo Id informado
@@ -42,5 +42,13 @@ namespace UsersCrud.Domain.ServicesInterfaces
         /// </summary>
         /// <returns>Lista com todos os usuários</returns>
         Task<List<UserResponseDTO>> GetAllUsers();
+
+        /// <summary>
+        /// Método para trocar a senha
+        /// </summary>
+        /// <param name="Email">E-mail para recuperação de senha</param>
+        /// <param name="newPassword">Nova senha</param>
+        /// <returns></returns>
+        Task<UserResponseDTO> ChangePassword(ChangePasswordDTO changePasswordDTO);
     }
 }

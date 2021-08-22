@@ -65,10 +65,11 @@ namespace UsersCrud.Services.Services
             return Task.FromResult(new UserResponseDTO { Email = userEntity.Email, Id = userEntity.Id, PhoneNumber = userEntity.PhoneNumber, UserName = userEntity.UserName});
         }
 
-        public Task<UserResponseDTO> UpdateUser(Guid userId, UserDTO userDto)
+        public Task<UserResponseDTO> UpdateUserData(Guid userId, UserUpdateDTO userDto)
         {
-            ValidateUserData(userDto);
-            VerifyExistingUserForUpdate(userId, userDto);
+            var validateUser = new UserDTO() { Email = userDto.Email, Password = "senhavalida", PhoneNumber = userDto.PhoneNumber, UserName = userDto.UserName };
+            ValidateUserData(validateUser);
+            VerifyExistingUserForUpdate(userId, validateUser);
 
             var user = _userRepository.Select(userId);
 
@@ -77,7 +78,6 @@ namespace UsersCrud.Services.Services
 
             ValidateAdminUserUpdate(user.UserName, userDto.UserName);
 
-            user.PasswordHash = userDto.Password.Encode();
             user.PhoneNumber = userDto.PhoneNumber;
             user.Email = userDto.Email;
             user.UserName = userDto.UserName;
@@ -85,6 +85,31 @@ namespace UsersCrud.Services.Services
             _userRepository.SaveChanges();
 
             return Task.FromResult(new UserResponseDTO { Email = user.Email, Id = user.Id, PhoneNumber = user.PhoneNumber, UserName = user.UserName });
+        }
+
+        public Task<UserResponseDTO> ChangePassword(ChangePasswordDTO changePasswordDTO)
+        {
+            ValidatePassword(changePasswordDTO.NewPassword);
+
+            var user = _userRepository.SelectWhere(x => x.UserName == changePasswordDTO.UserName);
+
+            if (user == null)
+                throw new Exception("E-mail inválido ou inexistente");
+
+            user.PasswordHash = changePasswordDTO.NewPassword.Encode();
+            _userRepository.Update(user);
+            _userRepository.SaveChanges();
+
+            return Task.FromResult(new UserResponseDTO { Email = user.Email, Id = user.Id, PhoneNumber = user.PhoneNumber, UserName = user.UserName });
+        }
+
+        private static void ValidatePassword(string password)
+        {
+            if (string.IsNullOrEmpty(password))
+                throw new Exception("A senha precisa ser informada");
+
+            if (password.Length < 6 || password.Length > 20)
+                throw new Exception("A senha deve ter entre 6 a 20 caracteres");
         }
 
         public Task DeleteUser(Guid userId)
@@ -125,6 +150,7 @@ namespace UsersCrud.Services.Services
 
             return Task.FromResult(new UserAuthenticateResponseDTO() { Id = userEntity.Id, Token = token, UserName = userEntity.UserName });
         }
+
 
         /// <summary>
         /// Método para verificar se está tentando modificar o usuário de admin
@@ -176,20 +202,16 @@ namespace UsersCrud.Services.Services
         /// <param name="userDto">Dados do usuário a serem validados</param>
         private void ValidateUserData(UserDTO userDto)
         {
+            ValidatePassword(userDto.Password);
+
             if (string.IsNullOrEmpty(userDto.UserName))
                 throw new Exception("O nome do usuário precisa ser informado");
 
             if(string.IsNullOrEmpty(userDto.Email))
                 throw new Exception("O email precisa ser informado");
 
-            if (string.IsNullOrEmpty(userDto.Password))
-                throw new Exception("A senha precisa ser informada");
-
             if (string.IsNullOrEmpty(userDto.PhoneNumber))
                 throw new Exception("O número de telefone precisa ser informado");
-
-            if (userDto.Password.Length < 6 || userDto.Password.Length > 20)
-                throw new Exception("A senha deve ter entre 6 a 20 caracteres");
 
             string userNamePattern = @"^[a-zA-Z0-9]{5,50}$";
             Regex rg = new Regex(userNamePattern);

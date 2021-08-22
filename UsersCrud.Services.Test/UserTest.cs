@@ -193,11 +193,11 @@ namespace UsersCrud.Services.Test
             IOptions<AppSettings> appSettingsOptions = Options.Create(settings);
             var userService = new UserService(repository, mapper, appSettingsOptions);
 
-            var user = new UserDTO() { Email = "alana@a.com", Password = "123456", PhoneNumber = "(62)99122-9290", UserName = "muitod4" };
+            var user = new UserUpdateDTO() { Email = "alana@a.com", PhoneNumber = "(62)99122-9290", UserName = "muitod4" };
 
             user.Email = "local@repository";
 
-            var exception = Assert.ThrowsAsync<Exception>(() => userService.UpdateUser(userId, user));
+            var exception = Assert.ThrowsAsync<Exception>(() => userService.UpdateUserData(userId, user));
             Assert.Equal("O e-mail deve ser um e-mail válido", exception.Result.Message);
         }
 
@@ -223,7 +223,7 @@ namespace UsersCrud.Services.Test
 
             var user = userService.AddNewUser(userDto).Result;
 
-            var result = userService.UpdateUser(user.Id, new UserDTO { Email = "local@repository.com", UserName = "radical8", Password = "novasenha", PhoneNumber = user.PhoneNumber}).Result;
+            var result = userService.UpdateUserData(user.Id, new UserUpdateDTO { Email = "local@repository.com", UserName = "radical8", PhoneNumber = user.PhoneNumber}).Result;
             Assert.True(result != null);
         }
 
@@ -364,6 +364,33 @@ namespace UsersCrud.Services.Test
 
             var result = Assert.ThrowsAsync<Exception>(() => userService.DeleteUser(new Guid()));
             Assert.Equal("Usuário inexistente", result.Result.Message);
+        }
+
+        /// <summary>
+        /// Teste de alteração de senha de usuário
+        /// </summary>
+        [Fact]
+        public void ChangeUserPassword()
+        {
+            var mapperconfig = new MapperConfiguration(cfg => cfg.AddProfile<MapData>());
+            var mapper = mapperconfig.CreateMapper();
+            var dbContextOptions = new DbContextOptionsBuilder<DataContext>().UseInMemoryDatabase("teste");
+            var dataContext = new DataContext(dbContextOptions.Options);
+            var repository = new BaseRepository<UserEntity>(dataContext);
+            var settings = new AppSettings()
+            {
+                Secret = "Asls-nsns-TERKRKS-**sm"
+            };
+            IOptions<AppSettings> appSettingsOptions = Options.Create(settings);
+            var userService = new UserService(repository, mapper, appSettingsOptions);
+
+            var user = new UserDTO() { Email = "burkina@er.ou", UserName = "usuariog", Password = "9876543", PhoneNumber = "21 9875-7895" };
+
+            var result = userService.AddNewUser(user).Result;
+
+            var changedPassword = userService.ChangePassword(new ChangePasswordDTO() { UserName = "usuariog", NewPassword = "qualquersenha" });
+
+            Assert.True(changedPassword != null);
         }
 
     }
