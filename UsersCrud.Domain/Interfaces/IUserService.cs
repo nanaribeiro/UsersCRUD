@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using UsersCrud.Domain.DTO;
 using UsersCrud.Domain.Entities;
@@ -13,13 +14,6 @@ namespace UsersCrud.Domain.ServicesInterfaces
         /// <param name="userDto"></param>
         /// <returns></returns>
         Task<UserEntity> AddNewUser(UserDTO userDto);
-
-        /// <summary>
-        /// Método para obter um usuário pelo seu ID
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        UserEntity GetById(Guid id);
 
         /// <summary>
         /// Método para atualizar um usuário
@@ -42,5 +36,11 @@ namespace UsersCrud.Domain.ServicesInterfaces
         /// <param name="userDto">Dados do usuário para autenticar</param>
         /// <returns></returns>
         Task<UserResponseDTO> Authenticate(UserDTO userDto);
+
+        /// <summary>
+        /// Método para listar todos os usuários cadastrados
+        /// </summary>
+        /// <returns>Lista com todos os usuários</returns>
+        Task<IEnumerable<UserEntity>> GetAllUsers();
     }
 }

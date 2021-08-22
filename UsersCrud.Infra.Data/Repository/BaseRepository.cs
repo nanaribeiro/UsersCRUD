@@ -31,7 +31,7 @@ namespace UsersCrud.Infra.Data.Repository
             _postgresContext.Set<TEntity>().Remove(Select(id));
         }
 
-        public IList<TEntity> Select() =>
+        public IEnumerable<TEntity> Select() =>
             _postgresContext.Set<TEntity>().ToList();
 
         public TEntity Select(Guid id) =>

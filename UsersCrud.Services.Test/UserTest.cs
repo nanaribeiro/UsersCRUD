@@ -2,6 +2,7 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using UsersCrud.CrossCutting.Helpers;
 using UsersCrud.Domain;
@@ -17,133 +18,353 @@ namespace UsersCrud.Services.Test
 {
     public class UserTest
     {
+        Guid userId = Guid.Empty;
+        Guid adminId = Guid.Empty;
+
+        /// <summary>
+        /// Testar a validação do nome de usuário inválido
+        /// </summary>
         [Fact]
         public void InvalidUserName()
         {
-            var config = new MapperConfiguration(cfg => cfg.AddProfile<MapData>());
-            var mapper = config.CreateMapper();
-            var ddd = new DbContextOptionsBuilder<DataContext>().UseInMemoryDatabase("teste");
-            var dv = new DataContext(ddd.Options);
-            var e = new BaseRepository<UserEntity>(dv);
+            var mapperconfig = new MapperConfiguration(cfg => cfg.AddProfile<MapData>());
+            var mapper = mapperconfig.CreateMapper();
+            var dbContextOptions = new DbContextOptionsBuilder<DataContext>().UseInMemoryDatabase("teste");
+            var dataContext = new DataContext(dbContextOptions.Options);
+            var repository = new BaseRepository<UserEntity>(dataContext);
+
             var settings = new AppSettings()
             {
                 Secret = "Test Project"
             };
+
             IOptions<AppSettings> appSettingsOptions = Options.Create(settings);
-            var x = new UserService(e, mapper, appSettingsOptions);
+            var userService = new UserService(repository, mapper, appSettingsOptions);
 
             var user = new UserDTO() { Email = "alana@a.com", Password = "123456", PhoneNumber = "6298746521", UserName = "arana."};
-            var exception = Assert.Throws<Exception>(() => x.ValidateUserData(user));
-            Assert.Equal("O nome de usuário deve ter entre 5 a 50 caracteres alfanúmericos", exception.Message);
+
+            var invokeMethod = typeof(UserService).GetMethod("ValidateUserData", BindingFlags.NonPublic | BindingFlags.Instance);
+            var exception = Assert.Throws<TargetInvocationException>(() => invokeMethod.Invoke(userService, new object[] { user }));
         }
 
+        /// <summary>
+        /// Testar a validação de nome de usuário válido
+        /// </summary>
         [Fact]
         public void ValidUserName()
         {
-            var config = new MapperConfiguration(cfg => cfg.AddProfile<MapData>());
-            var mapper = config.CreateMapper();
-            var ddd = new DbContextOptionsBuilder<DataContext>().UseInMemoryDatabase("teste");
-            var dv = new DataContext(ddd.Options);
-            var e = new BaseRepository<UserEntity>(dv);
+            var mapperconfig = new MapperConfiguration(cfg => cfg.AddProfile<MapData>());
+            var mapper = mapperconfig.CreateMapper();
+            var dbContextOptions = new DbContextOptionsBuilder<DataContext>().UseInMemoryDatabase("teste");
+            var dataContext = new DataContext(dbContextOptions.Options);
+            var repository = new BaseRepository<UserEntity>(dataContext);
+
             var settings = new AppSettings()
             {
                 Secret = "Test Project"
             };
             IOptions<AppSettings> appSettingsOptions = Options.Create(settings);
-            var x = new UserService(e, mapper, appSettingsOptions);
+            var userService = new UserService(repository, mapper, appSettingsOptions);
 
             var user = new UserDTO() { Email = "alana@a.com", Password = "123456", PhoneNumber = "6298746521", UserName = "arana" };
-            x.ValidateUserData(user);
+
+            var invokeMethod = typeof(UserService).GetMethod("ValidateUserData", BindingFlags.NonPublic | BindingFlags.Instance);
+            invokeMethod.Invoke(userService, new object[] { user });
             Assert.True(true);
         }
 
+        /// <summary>
+        /// Testar a validação de email inválido
+        /// </summary>
         [Fact]
         public void InvalidEmail()
         {
-            var config = new MapperConfiguration(cfg => cfg.AddProfile<MapData>());
-            var mapper = config.CreateMapper();
-            var ddd = new DbContextOptionsBuilder<DataContext>().UseInMemoryDatabase("teste");
-            var dv = new DataContext(ddd.Options);
-            var e = new BaseRepository<UserEntity>(dv);
+            var mapperconfig = new MapperConfiguration(cfg => cfg.AddProfile<MapData>());
+            var mapper = mapperconfig.CreateMapper();
+            var dbContextOptions = new DbContextOptionsBuilder<DataContext>().UseInMemoryDatabase("teste");
+            var dataContext = new DataContext(dbContextOptions.Options);
+            var repository = new BaseRepository<UserEntity>(dataContext);
             var settings = new AppSettings()
             {
                 Secret = "Test Project"
             };
             IOptions<AppSettings> appSettingsOptions = Options.Create(settings);
-            var x = new UserService(e, mapper, appSettingsOptions);
+            var userService = new UserService(repository, mapper, appSettingsOptions);
 
             var user = new UserDTO() { Email = "global@", Password = "123456", PhoneNumber = "6298746521", UserName = "muitod4" };
-            var exception = Assert.Throws<Exception>(() => x.ValidateUserData(user));
-            Assert.Equal("O e-mail deve ser um e-mail válido", exception.Message);
+
+            var invokeMethod = typeof(UserService).GetMethod("ValidateUserData", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            var exception = Assert.Throws<TargetInvocationException>(() => invokeMethod.Invoke(userService, new object[] { user }));
         }
 
+        /// <summary>
+        /// Testar a validaçao de número de telefone inválido
+        /// </summary>
         [Fact]
         public void InvalidPhoneNumber()
         {
-            var config = new MapperConfiguration(cfg => cfg.AddProfile<MapData>());
-            var mapper = config.CreateMapper();
-            var ddd = new DbContextOptionsBuilder<DataContext>().UseInMemoryDatabase("teste");
-            var dv = new DataContext(ddd.Options);
-            var e = new BaseRepository<UserEntity>(dv);
+            var mapperconfig = new MapperConfiguration(cfg => cfg.AddProfile<MapData>());
+            var mapper = mapperconfig.CreateMapper();
+            var dbContextOptions = new DbContextOptionsBuilder<DataContext>().UseInMemoryDatabase("teste");
+            var dataContext = new DataContext(dbContextOptions.Options);
+            var repository = new BaseRepository<UserEntity>(dataContext);
             var settings = new AppSettings()
             {
                 Secret = "Test Project"
             };
             IOptions<AppSettings> appSettingsOptions = Options.Create(settings);
-            var x = new UserService(e, mapper, appSettingsOptions);
+            var userService = new UserService(repository, mapper, appSettingsOptions);
 
             var user = new UserDTO() { Email = "alana@a.com", Password = "123456", PhoneNumber = "(62)99122-929", UserName = "muitod4" };
-            var exception = Assert.Throws<Exception>(() => x.ValidateUserData(user));
-            Assert.Equal("O número de telefone deve ser um telefone válido", exception.Message);
+
+            var invokeMethod = typeof(UserService).GetMethod("ValidateUserData", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            var exception = Assert.Throws<TargetInvocationException>(() => invokeMethod.Invoke(userService, new object[] { user }));
         }
 
+        /// <summary>
+        /// Testar a adição de um novo usuário com dados válidos
+        /// </summary>
         [Fact]
         public void NewValidUser()
         {
-            var config = new MapperConfiguration(cfg => cfg.AddProfile<MapData>());
-            var mapper = config.CreateMapper();
-            var ddd = new DbContextOptionsBuilder<DataContext>().UseInMemoryDatabase("teste");
-            var dv = new DataContext(ddd.Options);
-            var e = new BaseRepository<UserEntity>(dv);
+            var mapperconfig = new MapperConfiguration(cfg => cfg.AddProfile<MapData>());
+            var mapper = mapperconfig.CreateMapper();
+            var dbContextOptions = new DbContextOptionsBuilder<DataContext>().UseInMemoryDatabase("teste");
+            var dataContext = new DataContext(dbContextOptions.Options);
+            var repository = new BaseRepository<UserEntity>(dataContext);
             var settings = new AppSettings()
             {
                 Secret = "Asls-nsns-TERKRKS-**sm"
             };
             IOptions<AppSettings> appSettingsOptions = Options.Create(settings);
-            var x = new UserService(e, mapper, appSettingsOptions);
+            var userService = new UserService(repository, mapper, appSettingsOptions);
 
             var user = new UserDTO() { Email = "alana@a.com", Password = "123456", PhoneNumber = "(62)99122-9290", UserName = "muitod4" };
 
-            var result = x.AddNewUser(user).Result;
+            var result = userService.AddNewUser(user).Result;
+            userId = result.Id;
             Assert.True(result!=null);
 
         }
 
         /// <summary>
-        /// Executar teste junto com NewValidUser
+        /// Testar a validação dá adição de um usuário existente
         /// </summary>
         [Fact]
         public void AddingExistingUserName()
         {
-            var config = new MapperConfiguration(cfg => cfg.AddProfile<MapData>());
-            var mapper = config.CreateMapper();
-            var ddd = new DbContextOptionsBuilder<DataContext>().UseInMemoryDatabase("teste");
-            var dv = new DataContext(ddd.Options);
-            var e = new BaseRepository<UserEntity>(dv);
+            var mapperconfig = new MapperConfiguration(cfg => cfg.AddProfile<MapData>());
+            var mapper = mapperconfig.CreateMapper();
+            var dbContextOptions = new DbContextOptionsBuilder<DataContext>().UseInMemoryDatabase("teste");
+            var dataContext = new DataContext(dbContextOptions.Options);
+            var repository = new BaseRepository<UserEntity>(dataContext);
             var settings = new AppSettings()
             {
                 Secret = "Asls-nsns-TERKRKS-**sm"
             };
             IOptions<AppSettings> appSettingsOptions = Options.Create(settings);
-            var x = new UserService(e, mapper, appSettingsOptions);
+            var userService = new UserService(repository, mapper, appSettingsOptions);
 
             var user = new UserDTO() { Email = "alana@a.com", Password = "123456", PhoneNumber = "(62)99122-9290", UserName = "muitod4" };
 
-            user.Email = "local@ema.jp";
+            var result = userService.AddNewUser(user).Result;
 
-            var dynMethod = typeof(UserService).GetMethod("VerifyExistingUser", BindingFlags.NonPublic | BindingFlags.Instance);
+            var invokeMethod = typeof(UserService).GetMethod("VerifyExistingUser", BindingFlags.NonPublic | BindingFlags.Instance);
 
-            Assert.Throws<TargetInvocationException>(() => dynMethod.Invoke(x, new object[] { user }));
+            Assert.Throws<TargetInvocationException>(() => invokeMethod.Invoke(userService, new object[] { user }));
+        }
+
+        /// <summary>
+        /// Testar a atualização de um usuário com e-mail inválido
+        /// </summary>
+        [Fact]
+        public void UpdateUserWithInvalidEmail()
+        {
+            var mapperconfig = new MapperConfiguration(cfg => cfg.AddProfile<MapData>());
+            var mapper = mapperconfig.CreateMapper();
+            var dbContextOptions = new DbContextOptionsBuilder<DataContext>().UseInMemoryDatabase("teste");
+            var dataContext = new DataContext(dbContextOptions.Options);
+            var repository = new BaseRepository<UserEntity>(dataContext);
+            var settings = new AppSettings()
+            {
+                Secret = "Asls-nsns-TERKRKS-**sm"
+            };
+            IOptions<AppSettings> appSettingsOptions = Options.Create(settings);
+            var userService = new UserService(repository, mapper, appSettingsOptions);
+
+            var user = new UserDTO() { Email = "alana@a.com", Password = "123456", PhoneNumber = "(62)99122-9290", UserName = "muitod4" };
+
+            user.Email = "local@repository";
+
+            var exception = Assert.ThrowsAsync<Exception>(() => userService.UpdateUser(userId, user));
+            Assert.Equal("O repository-mail deve ser um repository-mail válido", exception.Result.Message);
+        }
+
+        /// <summary>
+        /// Testar a atualização de um usuário com dados válidos
+        /// </summary>
+        [Fact]
+        public void UpdateUserWithValidData()
+        {
+            var mapperconfig = new MapperConfiguration(cfg => cfg.AddProfile<MapData>());
+            var mapper = mapperconfig.CreateMapper();
+            var dbContextOptions = new DbContextOptionsBuilder<DataContext>().UseInMemoryDatabase("teste");
+            var dataContext = new DataContext(dbContextOptions.Options);
+            var repository = new BaseRepository<UserEntity>(dataContext);
+            var settings = new AppSettings()
+            {
+                Secret = "Asls-nsns-TERKRKS-**sm"
+            };
+            IOptions<AppSettings> appSettingsOptions = Options.Create(settings);
+            var userService = new UserService(repository, mapper, appSettingsOptions);
+
+            var users = (List<UserEntity>)userService.GetAllUsers().Result;            
+
+            var user = users.Find(userService => userService.UserName == "muitod4");
+
+            var result = userService.UpdateUser(user.Id, new UserDTO { Email = "local@repository.com", UserName = "radical8", Password = "novasenha", PhoneNumber = user.PhoneNumber}).Result;
+            Assert.True(result != null);
+        }
+
+        /// <summary>
+        /// Testar a obtenção da lista de usuários do sistema
+        /// </summary>
+        [Fact]
+        public void GetAllUsers()
+        {
+            var mapperconfig = new MapperConfiguration(cfg => cfg.AddProfile<MapData>());
+            var mapper = mapperconfig.CreateMapper();
+            var dbContextOptions = new DbContextOptionsBuilder<DataContext>().UseInMemoryDatabase("teste");
+            var dataContext = new DataContext(dbContextOptions.Options);
+            var repository = new BaseRepository<UserEntity>(dataContext);
+            var settings = new AppSettings()
+            {
+                Secret = "Asls-nsns-TERKRKS-**sm"
+            };
+            IOptions<AppSettings> appSettingsOptions = Options.Create(settings);
+            var userService = new UserService(repository, mapper, appSettingsOptions);
+
+            var result = (List<UserEntity>)userService.GetAllUsers().Result;
+            Assert.True(result.Count> 0);
+        }
+
+        /// <summary>
+        /// Testar o método de autenticação com usuário inválido
+        /// </summary>
+        [Fact]
+        public void AuthenticateWithInvalidUser()
+        {
+            var mapperconfig = new MapperConfiguration(cfg => cfg.AddProfile<MapData>());
+            var mapper = mapperconfig.CreateMapper();
+            var dbContextOptions = new DbContextOptionsBuilder<DataContext>().UseInMemoryDatabase("teste");
+            var dataContext = new DataContext(dbContextOptions.Options);
+            var repository = new BaseRepository<UserEntity>(dataContext);
+            var settings = new AppSettings()
+            {
+                Secret = "Asls-nsns-TERKRKS-**sm"
+            };
+            IOptions<AppSettings> appSettingsOptions = Options.Create(settings);
+            var userService = new UserService(repository, mapper, appSettingsOptions);
+
+            var user = new UserDTO() { Email = "alana@a.com", Password = "12345", PhoneNumber = "(62)99122-9290", UserName = "muitod4" };
+
+            var exception = Assert.ThrowsAsync<Exception>(() => userService.Authenticate(user));
+            Assert.Equal("Usuário ou senha inválido", exception.Result.Message);            
+        }
+
+        /// <summary>
+        /// Dados de admin para testar métodos de validação de usuário padrão
+        /// </summary>
+        [Fact]
+        public void AddAdminUser()
+        {
+            var mapperconfig = new MapperConfiguration(cfg => cfg.AddProfile<MapData>());
+            var mapper = mapperconfig.CreateMapper();
+            var dbContextOptions = new DbContextOptionsBuilder<DataContext>().UseInMemoryDatabase("teste");
+            var dataContext = new DataContext(dbContextOptions.Options);
+            var repository = new BaseRepository<UserEntity>(dataContext);
+            var settings = new AppSettings()
+            {
+                Secret = "Asls-nsns-TERKRKS-**sm"
+            };
+            IOptions<AppSettings> appSettingsOptions = Options.Create(settings);
+            var userService = new UserService(repository, mapper, appSettingsOptions);
+
+            var user = new UserDTO() { Email = "admin@admin.com", UserName = "4dmin21", Password = "Junt0Segur0s@2021", PhoneNumber = "21 9875-9854" };
+
+            var result = userService.AddNewUser(user).Result;
+            adminId = result.Id;
+            Assert.True(result != null);
+        }
+
+        /// <summary>
+        /// Testar a validação ]da atualização do usuário padrão 
+        /// </summary>
+        [Fact]
+        public void ValidateAdminUserUpdate()
+        {
+            var mapperconfig = new MapperConfiguration(cfg => cfg.AddProfile<MapData>());
+            var mapper = mapperconfig.CreateMapper();
+            var dbContextOptions = new DbContextOptionsBuilder<DataContext>().UseInMemoryDatabase("teste");
+            var dataContext = new DataContext(dbContextOptions.Options);
+            var repository = new BaseRepository<UserEntity>(dataContext);
+            var settings = new AppSettings()
+            {
+                Secret = "Asls-nsns-TERKRKS-**sm"
+            };
+            IOptions<AppSettings> appSettingsOptions = Options.Create(settings);
+            var userService = new UserService(repository, mapper, appSettingsOptions);
+
+            var invokeMethod = typeof(UserService).GetMethod("ValidateAdminUserUpdate", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            Assert.Throws<TargetInvocationException>(() => invokeMethod.Invoke(userService, new object[] { "4dmin21", "eumudooadmin" }));
+        }
+
+        /// <summary>
+        /// Testar validação de exclusão do usuário padrão do sistema
+        /// </summary>
+        [Fact]
+        public void ValidateAdminUserDelete()
+        {
+            var mapperconfig = new MapperConfiguration(cfg => cfg.AddProfile<MapData>());
+            var mapper = mapperconfig.CreateMapper();
+            var dbContextOptions = new DbContextOptionsBuilder<DataContext>().UseInMemoryDatabase("teste");
+            var dataContext = new DataContext(dbContextOptions.Options);
+            var repository = new BaseRepository<UserEntity>(dataContext);
+            var settings = new AppSettings()
+            {
+                Secret = "Asls-nsns-TERKRKS-**sm"
+            };
+            IOptions<AppSettings> appSettingsOptions = Options.Create(settings);
+            var userService = new UserService(repository, mapper, appSettingsOptions);
+
+            var invokeMethod = typeof(UserService).GetMethod("ValidateAdminUserDelete", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            Assert.Throws<TargetInvocationException>(() => invokeMethod.Invoke(userService, new object[] { adminId }));
+        }
+
+        /// <summary>
+        /// Testar a deleção de um usuário inválido
+        /// </summary>
+        [Fact]
+        public void DeleteInvalidUser()
+        {
+            var mapperconfig = new MapperConfiguration(cfg => cfg.AddProfile<MapData>());
+            var mapper = mapperconfig.CreateMapper();
+            var dbContextOptions = new DbContextOptionsBuilder<DataContext>().UseInMemoryDatabase("teste");
+            var dataContext = new DataContext(dbContextOptions.Options);
+            var repository = new BaseRepository<UserEntity>(dataContext);
+            var settings = new AppSettings()
+            {
+                Secret = "Asls-nsns-TERKRKS-**sm"
+            };
+            IOptions<AppSettings> appSettingsOptions = Options.Create(settings);
+            var userService = new UserService(repository, mapper, appSettingsOptions);
+
+            var result = Assert.ThrowsAsync<Exception>(() => userService.DeleteUser(new Guid()));
+            Assert.Equal("Usuário inexistente", result.Result.Message);
         }
 
     }

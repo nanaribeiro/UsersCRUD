@@ -44,7 +44,7 @@ namespace UsersCRUD
                 {
                     Version = "v1",
                     Title = "JWT Token Authentication API",
-                    Description = "ASP.NET Core 5.0 Web API"
+                    Description = "ASP.NET Core 5.0 Web API para Junto Seguros"
                 });
                 // To Enable authorization using Swagger (JWT)
                 swagger.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
@@ -54,7 +54,7 @@ namespace UsersCRUD
                     Scheme = "Bearer",
                     BearerFormat = "JWT",
                     In = ParameterLocation.Header,
-                    Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\nExample: \"Bearer 12345abcdef\"",
+                    Description = "JWT Authorization header utilizando o esquema Bearer. \r\n\r\n Digite 'Bearer' [espaço] e depois o seu token na caixa de entrada de texto abaixo.\r\n\r\nExemplo: \"Bearer 12345abcdef\"",
                 });
                 swagger.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {

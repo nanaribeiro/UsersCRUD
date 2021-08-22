@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -68,7 +69,14 @@ namespace UsersCrud.Services.Services
         {
             ValidateUserData(userDto);
             VerifyExistingUserForUpdate(userId, userDto);
+
             var user = _userRepository.Select(userId);
+
+            if (user == null)
+                throw new Exception("Usuário inexistente");
+
+            ValidateAdminUserUpdate(user.UserName, userDto.UserName);
+
             user.PasswordHash = userDto.Password.Encode();
             user.PhoneNumber = userDto.PhoneNumber;
             user.Email = userDto.Email;
@@ -81,10 +89,17 @@ namespace UsersCrud.Services.Services
 
         public Task DeleteUser(Guid userId)
         {
+            ValidateAdminUserDelete(userId);
+
             _userRepository.Delete(userId);
             _userRepository.SaveChanges();
 
             return Task.FromResult(userId);
+        }
+
+        public Task<IEnumerable<UserEntity>> GetAllUsers()
+        {
+            return Task.FromResult(_userRepository.Select());
         }
 
         public Task<UserResponseDTO> Authenticate(UserDTO userDto)
@@ -106,6 +121,27 @@ namespace UsersCrud.Services.Services
             var token = GenerateJwtToken(userEntity.Id.ToString());
 
             return Task.FromResult(new UserResponseDTO() { Id = userEntity.Id, Token = token, UserName = userEntity.UserName });
+        }
+
+        /// <summary>
+        /// Método para verificar se está tentando modificar o usuário de admin
+        /// </summary>
+        /// <param name="currentUserName">nome de usuário atual</param>
+        /// <param name="updatedUserName">nome de usuário a ser modificado</param>
+        private void ValidateAdminUserUpdate(string currentUserName, string updatedUserName)
+        {
+            if (currentUserName == "4dmin21" && currentUserName != updatedUserName)
+                throw new Exception("Não é possível mudar o nome do usuário padrão do sistema");
+        }
+
+        private void ValidateAdminUserDelete(Guid userId)
+        {
+            var existingUser = _userRepository.SelectWhere(x => x.Id == userId);
+
+            if (existingUser == null)
+                throw new Exception("Usuário inexistente");
+            if (existingUser.UserName == "4dmin21")
+                throw new Exception("Não é permitido excluir o usuário padrão do sistema");
         }
 
         private void VerifyExistingUser(UserDTO userDto)
@@ -130,21 +166,12 @@ namespace UsersCrud.Services.Services
                 throw new Exception("E-mail em uso. Por favor logue com seu usuário ou digite outro e-mail");
         }
 
-        /// <summary>
-        /// Método para obter um usuário pelo seu Id
-        /// </summary>
-        /// <param name="id">Identificador do usuário</param>
-        /// <returns></returns>
-        public UserEntity GetById(Guid id)
-        {
-            return _userRepository.Select(id);
-        }
 
         /// <summary>
         /// Método para validação dos dados do usuário
         /// </summary>
         /// <param name="userDto">Dados do usuário a serem validados</param>
-        public void ValidateUserData(UserDTO userDto)
+        private void ValidateUserData(UserDTO userDto)
         {
             if (string.IsNullOrEmpty(userDto.UserName))
                 throw new Exception("O nome do usuário precisa ser informado");
@@ -191,7 +218,7 @@ namespace UsersCrud.Services.Services
         private string GenerateJwtToken(string userId)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            //Pegar o segredo do appsettings
+
             var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
             var tokenDescriptor = new SecurityTokenDescriptor
             {

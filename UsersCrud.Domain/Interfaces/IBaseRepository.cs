@@ -12,7 +12,7 @@ namespace UsersCrud.Domain.Interfaces
 
         void Delete(Guid id);
 
-        IList<TEntity> Select();
+        IEnumerable<TEntity> Select();
 
         TEntity Select(Guid id);
 

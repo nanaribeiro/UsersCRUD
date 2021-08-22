@@ -43,5 +43,12 @@ namespace UsersCRUD.Controllers
         {
             return Ok(_userService.DeleteUser(userId));
         }
+
+        [Authorize]
+        [HttpGet]
+        public IActionResult GetAllUsers()
+        {
+            return Ok(_userService.GetAllUsers());
+        }
     }
 }
