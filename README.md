@@ -16,4 +16,9 @@ Como executar os testes unitários?
 - Os testes unitários foram feitos com o xUnit, portanto se você executar o projeto pelo Visual Studio poderá executar os testes pelo menu Test.
 - Os testes pode ser executados individualmente (um por um) ou todos de uma vez pelo menu Test no Visual Studio.
 
+Como a API funciona?
+- Os únicos endpoints abertos são o de autenticação e o de mudança de senha, por este motivo foi criado um usuário e senha padrão (cuja senha deverá ser modificada), segue:
+- Usuário: 4dmin21
+- Senha: Junt0Segur0s@2021
+
 ## MUITO OBRIGADA!
