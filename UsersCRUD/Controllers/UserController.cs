@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System;
 using UsersCrud.Domain.DTO;
 using UsersCrud.Domain.ServicesInterfaces;
 
@@ -15,10 +17,31 @@ namespace UsersCRUD.Controllers
             _userService = userService;
         }
 
-        [HttpPost]
+        [Authorize]
+        [HttpPost("create")]
         public IActionResult Create([FromBody] UserDTO user)
         {
             return Ok(_userService.AddNewUser(user));
+        }
+
+        [HttpPost("authenticate")]
+        public IActionResult Authenticate([FromBody] UserDTO user)
+        {
+            return Ok(_userService.Authenticate(user));
+        }
+
+        [Authorize]
+        [HttpPut("update/{userId}")]
+        public IActionResult Update([FromRoute] Guid userId, [FromBody] UserDTO user)
+        {
+            return Ok(_userService.UpdateUser(userId, user));
+        }
+
+        [Authorize]
+        [HttpDelete("remove/{userId}")]
+        public IActionResult Remove([FromRoute] Guid userId)
+        {
+            return Ok(_userService.DeleteUser(userId));
         }
     }
 }

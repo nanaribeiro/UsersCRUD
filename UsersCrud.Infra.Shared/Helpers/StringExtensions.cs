@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace UsersCrud.Infra.Shared
+namespace UsersCrud.CrossCutting.Helpers
 {
     public static class StringExtensions
     {
@@ -10,7 +10,7 @@ namespace UsersCrud.Infra.Shared
         /// </summary>
         /// <param name="value">Objeto referenciado.</param>
         /// <returns>Valor hasheado.</returns>
-        public static byte[] Encode(this string value)
+        public static string Encode(this string value)
         {
             var algorithm = SHA512.Create();
             var encodedValue = Encoding.UTF8.GetBytes(value);
@@ -22,7 +22,7 @@ namespace UsersCrud.Infra.Shared
                 sb.Append(caracter.ToString("X2"));
             }
 
-            return Encoding.UTF8.GetBytes(sb.ToString());
+            return sb.ToString();
         }
     }
 }

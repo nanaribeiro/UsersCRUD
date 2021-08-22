@@ -12,7 +12,6 @@ using UsersCrud.Domain.DTO;
 using UsersCrud.Domain.Entities;
 using UsersCrud.Domain.Interfaces;
 using UsersCrud.Domain.ServicesInterfaces;
-using UsersCrud.Infra.Shared;
 
 namespace UsersCrud.Services.Services
 {
@@ -53,7 +52,7 @@ namespace UsersCrud.Services.Services
         /// </summary>
         /// <param name="userDto">Dados do novo usuário</param>
         /// <returns></returns>
-        public Task<UserResponseDTO> AddNewUser(UserDTO userDto)
+        public Task<UserEntity> AddNewUser(UserDTO userDto)
         {
             ValidateUserData(userDto);
             VerifyExistingUser(userDto);
@@ -61,9 +60,8 @@ namespace UsersCrud.Services.Services
             userEntity.PasswordHash = userDto.Password.Encode();
             _userRepository.Insert(userEntity);
             _userRepository.SaveChanges();
-            var token = GenerateJwtToken(userEntity.Id.ToString());
 
-            return Task.FromResult(new UserResponseDTO() {Id =  userEntity.Id, Token = token, UserName = userEntity.UserName });
+            return Task.FromResult(userEntity);
         }
 
         public Task<UserDTO> UpdateUser(Guid userId, UserDTO userDto)
@@ -79,6 +77,35 @@ namespace UsersCrud.Services.Services
             _userRepository.SaveChanges();
 
             return Task.FromResult(userDto);
+        }
+
+        public Task DeleteUser(Guid userId)
+        {
+            _userRepository.Delete(userId);
+            _userRepository.SaveChanges();
+
+            return Task.FromResult(userId);
+        }
+
+        public Task<UserResponseDTO> Authenticate(UserDTO userDto)
+        {
+            if (string.IsNullOrEmpty(userDto.UserName))
+                throw new Exception("O nome do usuário precisa ser informado");
+
+            if (string.IsNullOrEmpty(userDto.Password))
+                throw new Exception("A senha precisa ser informada");
+
+            var userEntity = this._mapper.Map<UserEntity>(userDto);
+            userEntity.PasswordHash = userDto.Password.Encode();
+
+            var existingUser = _userRepository.SelectWhere(x => x.UserName == userEntity.UserName && x.PasswordHash == userEntity.PasswordHash);
+            
+            if (existingUser == null)
+                throw new Exception("Usuário ou senha inválido");
+
+            var token = GenerateJwtToken(userEntity.Id.ToString());
+
+            return Task.FromResult(new UserResponseDTO() { Id = userEntity.Id, Token = token, UserName = userEntity.UserName });
         }
 
         private void VerifyExistingUser(UserDTO userDto)

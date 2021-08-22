@@ -15,7 +15,7 @@
         /// <summary>
         /// Hash da senha do usuário.
         /// </summary>
-        public byte[] PasswordHash { get; set; }
+        public string PasswordHash { get; set; }
 
         /// <summary>
         /// Telefone do usuário

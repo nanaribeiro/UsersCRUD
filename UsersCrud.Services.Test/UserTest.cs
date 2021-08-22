@@ -119,6 +119,9 @@ namespace UsersCrud.Services.Test
 
         }
 
+        /// <summary>
+        /// Executar teste junto com NewValidUser
+        /// </summary>
         [Fact]
         public void AddingExistingUserName()
         {
@@ -135,9 +138,6 @@ namespace UsersCrud.Services.Test
             var x = new UserService(e, mapper, appSettingsOptions);
 
             var user = new UserDTO() { Email = "alana@a.com", Password = "123456", PhoneNumber = "(62)99122-9290", UserName = "muitod4" };
-
-            var result = x.AddNewUser(user).Result;
-            Assert.True(result != null);
 
             user.Email = "local@ema.jp";
 
