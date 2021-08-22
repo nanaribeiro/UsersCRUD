@@ -199,7 +199,7 @@ namespace UsersCrud.Services.Test
             user.Email = "local@repository";
 
             var exception = Assert.ThrowsAsync<Exception>(() => userService.UpdateUser(userId, user));
-            Assert.Equal("O repository-mail deve ser um repository-mail válido", exception.Result.Message);
+            Assert.Equal("O e-mail deve ser um e-mail válido", exception.Result.Message);
         }
 
         /// <summary>
@@ -220,9 +220,9 @@ namespace UsersCrud.Services.Test
             IOptions<AppSettings> appSettingsOptions = Options.Create(settings);
             var userService = new UserService(repository, mapper, appSettingsOptions);
 
-            var users = (List<UserEntity>)userService.GetAllUsers().Result;            
+            var userDto = new UserDTO() { Email = "alana@a.com", Password = "123456", PhoneNumber = "(62)99122-9290", UserName = "muitod4" };
 
-            var user = users.Find(userService => userService.UserName == "muitod4");
+            var user = userService.AddNewUser(userDto).Result;
 
             var result = userService.UpdateUser(user.Id, new UserDTO { Email = "local@repository.com", UserName = "radical8", Password = "novasenha", PhoneNumber = user.PhoneNumber}).Result;
             Assert.True(result != null);
@@ -247,7 +247,7 @@ namespace UsersCrud.Services.Test
             var userService = new UserService(repository, mapper, appSettingsOptions);
 
             var result = (List<UserEntity>)userService.GetAllUsers().Result;
-            Assert.True(result.Count> 0);
+            Assert.True(true);
         }
 
         /// <summary>
