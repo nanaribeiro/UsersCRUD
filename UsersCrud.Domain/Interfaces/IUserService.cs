@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using UsersCrud.Domain.DTO;
 using UsersCrud.Domain.Entities;
@@ -28,7 +29,7 @@ namespace UsersCrud.Domain.ServicesInterfaces
         /// </summary>
         /// <param name="userId">Id de identificação do usuário a ser deletado</param>
         /// <returns></returns>
-        Task DeleteUser(Guid userId);
+        Task<Guid> DeleteUser(Guid userId);
 
         /// <summary>
         /// Método para autenticar no sistema

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Threading.Tasks;
 using UsersCrud.Domain.DTO;
 using UsersCrud.Domain.ServicesInterfaces;
 
@@ -19,35 +20,35 @@ namespace UsersCRUD.Controllers
 
         [Authorize]
         [HttpPost("create")]
-        public IActionResult Create([FromBody] UserDTO user)
+        public async Task<UserResponseDTO> Create([FromBody] UserDTO user)
         {
-            return Execute(() => _userService.AddNewUser(user));
+            return await _userService.AddNewUser(user);
         }
 
         [HttpPost("authenticate")]
-        public IActionResult Authenticate([FromBody] UserAuthenticationDTO user)
+        public async Task<UserAuthenticateResponseDTO> Authenticate([FromBody] UserAuthenticationDTO user)
         {
-            return Execute(() =>_userService.Authenticate(user));
+            return await _userService.Authenticate(user);
         }
 
         [HttpPut("changepassword")]
-        public IActionResult ChangePassword([FromBody] ChangePasswordDTO user)
+        public async Task<UserResponseDTO> ChangePassword([FromBody] ChangePasswordDTO user)
         {
-            return Execute(() => _userService.ChangePassword(user));
+            return await _userService.ChangePassword(user);
         }
 
         [Authorize]
         [HttpPut("update/{userId}")]
-        public IActionResult Update([FromRoute] Guid userId, [FromBody] UserUpdateDTO user)
+        public async Task<UserResponseDTO> Update([FromRoute] Guid userId, [FromBody] UserUpdateDTO user)
         {
-            return Execute(() => _userService.UpdateUserData(userId, user));
+            return await _userService.UpdateUserData(userId, user);
         }
 
         [Authorize]
         [HttpDelete("remove/{userId}")]
-        public IActionResult Remove([FromRoute] Guid userId)
+        public async Task<Guid> Remove([FromRoute] Guid userId)
         {
-            return Execute(() => _userService.DeleteUser(userId));
+            return await _userService.DeleteUser(userId);
         }
 
         [Authorize]

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using UsersCrud.Domain.Entities;
 using UsersCrud.Domain.Interfaces;
 using UsersCrud.Infra.Data.Contexts;
@@ -44,9 +46,9 @@ namespace UsersCrud.Infra.Data.Repository
         public TEntity SelectWhere(Func<TEntity, bool> predicate) =>
             _postgresContext.Set<TEntity>().Where(predicate).FirstOrDefault();
 
-        public void SaveChanges()
+        public async Task SaveChanges(CancellationToken cancellationToken = default)
         {
-            _postgresContext.SaveChanges();
+            await _postgresContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         }
     }
 }

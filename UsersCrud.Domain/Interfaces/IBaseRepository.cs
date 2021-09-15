@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using UsersCrud.Domain.Entities;
 
 namespace UsersCrud.Domain.Interfaces
@@ -20,7 +22,7 @@ namespace UsersCrud.Domain.Interfaces
 
         TEntity Select(Guid id);
 
-        void SaveChanges();
+        Task SaveChanges(CancellationToken cancellationToken = default);
 
         TEntity SelectWhere(Func<TEntity, bool> predicate);
     }

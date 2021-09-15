@@ -7,6 +7,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using UsersCrud.CrossCutting.Helpers;
 using UsersCrud.Domain.DTO;
@@ -53,16 +54,16 @@ namespace UsersCrud.Services.Services
         /// </summary>
         /// <param name="userDto">Dados do novo usuário</param>
         /// <returns></returns>
-        public Task<UserResponseDTO> AddNewUser(UserDTO userDto)
+        public async Task<UserResponseDTO> AddNewUser(UserDTO userDto)
         {
             ValidateUserData(userDto);
             VerifyExistingUser(userDto);
             var userEntity = this._mapper.Map<UserEntity>(userDto);
             userEntity.PasswordHash = userDto.Password.Encode();
             _userRepository.Insert(userEntity);
-            _userRepository.SaveChanges();
+            await _userRepository.SaveChanges();
 
-            return Task.FromResult(new UserResponseDTO { Email = userEntity.Email, Id = userEntity.Id, PhoneNumber = userEntity.PhoneNumber, UserName = userEntity.UserName});
+            return new UserResponseDTO { Email = userEntity.Email, Id = userEntity.Id, PhoneNumber = userEntity.PhoneNumber, UserName = userEntity.UserName};
         }
 
         /// <summary>
@@ -71,7 +72,7 @@ namespace UsersCrud.Services.Services
         /// <param name="userId">Id único do usuário</param>
         /// <param name="userDto">Dados a serem modificados</param>
         /// <returns></returns>
-        public Task<UserResponseDTO> UpdateUserData(Guid userId, UserUpdateDTO userDto)
+        public async Task<UserResponseDTO> UpdateUserData(Guid userId, UserUpdateDTO userDto)
         {
             var validateUser = new UserDTO() { Email = userDto.Email, Password = "senhavalida", PhoneNumber = userDto.PhoneNumber, UserName = userDto.UserName };
             ValidateUserData(validateUser);
@@ -88,9 +89,9 @@ namespace UsersCrud.Services.Services
             user.Email = userDto.Email;
             user.UserName = userDto.UserName;
             _userRepository.Update(user);
-            _userRepository.SaveChanges();
+            await _userRepository.SaveChanges();
 
-            return Task.FromResult(new UserResponseDTO { Email = user.Email, Id = user.Id, PhoneNumber = user.PhoneNumber, UserName = user.UserName });
+            return new UserResponseDTO { Email = user.Email, Id = user.Id, PhoneNumber = user.PhoneNumber, UserName = user.UserName };
         }
 
         /// <summary>
@@ -98,7 +99,7 @@ namespace UsersCrud.Services.Services
         /// </summary>
         /// <param name="changePasswordDTO">DTO com os dados necessários para a mudança de senha</param>
         /// <returns></returns>
-        public Task<UserResponseDTO> ChangePassword(ChangePasswordDTO changePasswordDTO)
+        public async Task<UserResponseDTO> ChangePassword(ChangePasswordDTO changePasswordDTO)
         {
             ValidatePassword(changePasswordDTO.NewPassword);
 
@@ -109,9 +110,9 @@ namespace UsersCrud.Services.Services
 
             user.PasswordHash = changePasswordDTO.NewPassword.Encode();
             _userRepository.Update(user);
-            _userRepository.SaveChanges();
+            await _userRepository.SaveChanges();
 
-            return Task.FromResult(new UserResponseDTO { Email = user.Email, Id = user.Id, PhoneNumber = user.PhoneNumber, UserName = user.UserName });
+            return new UserResponseDTO { Email = user.Email, Id = user.Id, PhoneNumber = user.PhoneNumber, UserName = user.UserName };
         }
 
         /// <summary>
@@ -132,14 +133,14 @@ namespace UsersCrud.Services.Services
         /// </summary>
         /// <param name="userId">Is de identificação do usuárioa  ser removido</param>
         /// <returns></returns>
-        public Task DeleteUser(Guid userId)
+        public async Task<Guid> DeleteUser(Guid userId)
         {
             ValidateAdminUserDelete(userId);
 
             _userRepository.Delete(userId);
-            _userRepository.SaveChanges();
+           await _userRepository.SaveChanges();
 
-            return Task.FromResult(userId);
+            return userId;
         }
 
         /// <summary>
@@ -176,6 +177,8 @@ namespace UsersCrud.Services.Services
                 throw new Exception("Usuário ou senha inválido");
 
             var token = GenerateJwtToken(userEntity.Id.ToString());
+
+            Username.UserName = userEntity.UserName;
 
             return Task.FromResult(new UserAuthenticateResponseDTO() { Id = userEntity.Id, Token = token, UserName = userEntity.UserName });
         }
@@ -244,7 +247,7 @@ namespace UsersCrud.Services.Services
         /// <param name="userDto">Dados do usuário a serem validados</param>
         private void ValidateUserData(UserDTO userDto)
         {
-            ValidatePassword(userDto.Password);
+            ValidatePassword(userDto.Password);            
 
             if (string.IsNullOrEmpty(userDto.UserName))
                 throw new Exception("O nome do usuário precisa ser informado");
