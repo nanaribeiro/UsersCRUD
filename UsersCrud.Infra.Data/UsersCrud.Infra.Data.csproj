@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Audit.SaveChanges" Version="1.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.10">
       <PrivateAssets>all</PrivateAssets>
@@ -19,7 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DataContext.Audit.SaveChanges\Audit.SaveChanges.csproj" />
     <ProjectReference Include="..\UsersCrud.Domain\UsersCrud.Domain.csproj" />
     <ProjectReference Include="..\UsersCrud.Services\UsersCrud.Services.csproj" />
   </ItemGroup>
